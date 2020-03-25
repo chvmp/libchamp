@@ -1,0 +1,210 @@
+/*
+Copyright (c) 2019-2020, Juan Miguel Jimeno
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef KINEMATICS_H
+#define KINEMATICS_H
+
+#include <geometry/geometry.h>
+#include <quadruped_base/quadruped_base.h>
+
+namespace champ
+{
+    class Kinematics
+    {
+        champ::QuadrupedBase *base_;
+
+        float ik_alpha_h_[4];
+        float ik_beta_h_[4];
+        float ik_alpha_[4];
+        float ik_beta_[4];
+
+        void inverseSolveLeg(float &hip_joint, float &upper_leg_joint, float &lower_leg_joint, 
+                                champ::QuadrupedLeg &leg, geometry::Transformation &foot_position)
+        {
+            geometry::Transformation temp_foot_pos = foot_position;
+
+            float x = temp_foot_pos.X();
+            float y = temp_foot_pos.Y();
+            float z = temp_foot_pos.Z();
+            float l0 = 0.0f;
+            float l1 = ik_alpha_h_[leg.id()];
+            float l2 = ik_beta_h_[leg.id()];
+
+            for(unsigned int i = 1; i < 4; i++)
+            {
+                l0 += leg.joint_chain[i]->y();
+            }
+
+            hip_joint = -(atanf(y / z) - ((M_PI/2) - acosf(-l0 / sqrtf(pow(y, 2) + pow(z, 2)))));
+
+            temp_foot_pos.RotateX(-hip_joint);
+            temp_foot_pos.Translate(-leg.upper_leg->x(), 0.0f, -leg.upper_leg->z());
+
+            x = temp_foot_pos.X();
+            y = temp_foot_pos.Y();
+            z = temp_foot_pos.Z();
+            
+            lower_leg_joint = leg.knee_direction() * acosf((pow(z, 2) + pow(x, 2) - pow(l1 ,2) - pow(l2 ,2)) / (2 * l1 * l2));
+            upper_leg_joint = (atanf(x / z) - atanf((l2 * sinf(lower_leg_joint)) / (l1 + (l2 * cosf(lower_leg_joint)))));
+            
+            lower_leg_joint += ik_beta_[leg.id()];
+            upper_leg_joint += ik_alpha_[leg.id()];
+        }
+
+        public:
+            Kinematics(champ::QuadrupedBase &quadruped_base):
+                base_(&quadruped_base)
+            {
+                for(unsigned int i = 0; i < 4; i++)
+                {
+                    float upper_to_lower_leg_x = base_->legs[i]->lower_leg->x();
+                    float lower_leg_to_foot_x  = base_->legs[i]->foot->x();
+                    float upper_to_lower_leg_z = base_->legs[i]->lower_leg->z();
+                    float lower_leg_to_foot_z  = base_->legs[i]->foot->z();
+
+                    ik_alpha_h_[i] = -sqrtf(pow(upper_to_lower_leg_x, 2) + pow(upper_to_lower_leg_z, 2));
+                    ik_alpha_[i] = acosf(upper_to_lower_leg_x / ik_alpha_h_[i]) - (M_PI / 2); 
+
+                    ik_beta_h_[i] = -sqrtf(pow(lower_leg_to_foot_x, 2) + pow(lower_leg_to_foot_z, 2));
+                    ik_beta_[i] = acosf(lower_leg_to_foot_x / ik_beta_h_[i]) - (M_PI / 2); 
+                }
+            }
+
+            void inverse(float (&joint_positions)[12], geometry::Transformation (&foot_positions)[4])
+            {
+                float calculated_joints[12];
+
+                for(unsigned int i = 0; i < 4; i++)
+                {
+                    inverseSolveLeg(calculated_joints[(i*3)], calculated_joints[(i*3) + 1], calculated_joints[(i*3) + 2], *base_->legs[i], foot_positions[i]);
+                    
+                    //check if any leg has invalid calculation, if so disregard the whole plan
+                    if(isnan(calculated_joints[(i*3)]) || isnan(calculated_joints[(i*3) + 1]) || isnan(calculated_joints[(i*3) + 2]))
+                    {
+                        return;
+                    }
+                }
+                
+                for(unsigned int i = 0; i < 12; i++)
+                {
+                    joint_positions[i] = calculated_joints[i];
+                }
+            }
+
+            static void inverse(float &hip_joint, float &upper_leg_joint, float &lower_leg_joint, 
+                                 champ::QuadrupedLeg &leg, geometry::Transformation &foot_position)
+            {
+                geometry::Transformation temp_foot_pos = foot_position;
+
+                float upper_to_lower_leg_x = leg.lower_leg->x();
+                float lower_leg_to_foot_x  = leg.foot->x();
+                float upper_to_lower_leg_z = leg.lower_leg->z();
+                float lower_leg_to_foot_z  = leg.foot->z();
+
+                float ik_alpha_h = -sqrtf(pow(upper_to_lower_leg_x, 2) + pow(upper_to_lower_leg_z, 2));
+                float ik_alpha = acosf(upper_to_lower_leg_x / ik_alpha_h) - (M_PI / 2); 
+
+                float ik_beta_h = -sqrtf(pow(lower_leg_to_foot_x, 2) + pow(lower_leg_to_foot_z, 2));
+                float ik_beta = acosf(lower_leg_to_foot_x / ik_beta_h) - (M_PI / 2); 
+
+                float x = temp_foot_pos.X();
+                float y = temp_foot_pos.Y();
+                float z = temp_foot_pos.Z();
+                float l0 = 0.0f;
+                float l1 = ik_alpha_h;
+                float l2 = ik_beta_h;
+
+                for(unsigned int i = 1; i < 4; i++)
+                {
+                    l0 += leg.joint_chain[i]->y();
+                }
+
+                hip_joint = -(atanf(y / z) - ((M_PI/2) - acosf(-l0 / sqrtf(pow(y, 2) + pow(z, 2)))));
+
+                temp_foot_pos.RotateX(-hip_joint);
+                temp_foot_pos.Translate(-leg.upper_leg->x(), 0.0f, -leg.upper_leg->z());
+
+                x = temp_foot_pos.X();
+                y = temp_foot_pos.Y();
+                z = temp_foot_pos.Z();
+                
+                lower_leg_joint = leg.knee_direction() * acosf((pow(z, 2) + pow(x, 2) - pow(l1 ,2) - pow(l2 ,2)) / (2 * l1 * l2));
+                upper_leg_joint = (atanf(x / z) - atanf((l2 * sinf(lower_leg_joint)) / (l1 + (l2 * cosf(lower_leg_joint)))));
+                
+                lower_leg_joint += ik_beta;
+                upper_leg_joint += ik_alpha;
+            }
+
+            static void forward(geometry::Transformation foot_position, const champ::QuadrupedLeg &leg, 
+                                const float upper_leg_theta, 
+                                const float lower_leg_theta )
+            {
+                foot_position.Translate(leg.foot->x(), leg.foot->y(), leg.foot->z());
+                foot_position.RotateY(lower_leg_theta);          
+
+                foot_position.Translate(leg.lower_leg->x(), leg.lower_leg->y(), leg.lower_leg->z());
+                foot_position.RotateY(upper_leg_theta);   
+
+                foot_position.Translate(leg.upper_leg->x(), leg.upper_leg->y(), leg.upper_leg->z());
+            }
+
+            static void forward(geometry::Transformation foot_position, const champ::QuadrupedLeg &leg, 
+                                const float hip_theta, 
+                                const float upper_leg_theta, 
+                                const float lower_leg_theta)
+            {
+                foot_position = Identity<4,4>();
+
+                foot_position.Translate(leg.foot->x(), leg.foot->y(), leg.foot->z());
+                foot_position.RotateY(lower_leg_theta);          
+
+                foot_position.Translate(leg.lower_leg->x(), leg.lower_leg->y(), leg.lower_leg->z());
+                foot_position.RotateY(upper_leg_theta);   
+
+                foot_position.Translate(leg.upper_leg->x(), leg.upper_leg->y(), leg.upper_leg->z());
+                foot_position.RotateY(hip_theta);   
+
+                foot_position.Translate(leg.hip->x(), leg.hip->y(), leg.hip->z());
+            }
+
+            static void transformToHip(geometry::Transformation &foot_position, const QuadrupedLeg &leg)
+            {
+                foot_position.X() -= leg.hip->x();
+                foot_position.Y() -= leg.hip->y();
+            }
+
+            static void transformToBase(geometry::Transformation &foot_position, const QuadrupedLeg &leg)
+            {
+                foot_position.RotateX(leg.hip->roll());
+                foot_position.RotateY(leg.hip->pitch());
+                foot_position.RotateZ(leg.hip->yaw());
+                foot_position.Translate(leg.hip->x(), leg.hip->y(), leg.hip->z());
+            }
+    };
+}
+
+#endif
