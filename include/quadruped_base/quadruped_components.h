@@ -56,7 +56,7 @@ namespace champ
             {}
     };
 
-    class Velocities: public Linear, public Angular
+    class Velocities
     {
         public:
             Linear linear;
@@ -107,7 +107,7 @@ namespace champ
     class Pose
     {
         public:
-            Point translation;
+            Point position;
             Euler orientation;
     };
 
