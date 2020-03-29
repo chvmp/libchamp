@@ -58,7 +58,7 @@ namespace champ
                                     champ::QuadrupedLeg &leg, 
                                     const champ::Pose &req_pose)
             {
-                float delta_height = leg.zero_stance().Z() + req_pose.translation.z;
+                float delta_height = leg.zero_stance().Z() + req_pose.position.z;
 
                 //create a new foot position from position of legs when stretched out
                 foot_position = leg.zero_stance();
