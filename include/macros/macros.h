@@ -30,12 +30,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __unix__
     #include <sys/time.h>
+    #include <cmath>
     //source: https://gist.github.com/sevko/d23646ba07c77c15fde9
     #define time_us() ({ \
         struct timeval currentTime;\
         gettimeofday(&currentTime, NULL);\
         currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;\
     })
+    #define isnan std::isnan
 #else   
     #include <Arduino.h>
 
