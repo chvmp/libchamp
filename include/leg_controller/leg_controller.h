@@ -50,11 +50,11 @@ namespace champ
         public:
             LegController(QuadrupedBase &quadruped_base):
                 base_(&quadruped_base),     
-                phase_generator(base_->gait_config.stance_duration),
-                lf(base_->lf, base_->gait_config.swing_height, base_->gait_config.stance_depth),
-                rf(base_->rf, base_->gait_config.swing_height, base_->gait_config.stance_depth),
-                lh(base_->lh, base_->gait_config.swing_height, base_->gait_config.stance_depth),
-                rh(base_->rh, base_->gait_config.swing_height, base_->gait_config.stance_depth)
+                phase_generator(quadruped_base),
+                lf(base_->lf),
+                rf(base_->rf),
+                lh(base_->lh),
+                rh(base_->rh)
             {
                 unsigned int total_legs = 0;
                 
