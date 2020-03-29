@@ -213,10 +213,17 @@ namespace champ
                 return is_pantograph_;
             }
 
+            void setGaitConfig(champ::GaitConfig *gait_conf)
+            {
+                gait_config = gait_conf;
+            }
+
             champ::Joint hip;
             champ::Joint upper_leg;
             champ::Joint lower_leg;
             champ::Joint foot;
+
+            champ::GaitConfig *gait_config;
 
             Joint *joint_chain[4];
     };

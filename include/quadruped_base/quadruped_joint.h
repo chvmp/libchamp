@@ -48,9 +48,11 @@ namespace champ
         champ::Euler rotation_;
 
         public:
-            Joint()
+            Joint():
+                theta_(0.0)
             {
             }
+            
             Joint(float pos_x, float pos_y, float pos_z, 
                   float or_r,  float or_p,  float or_y):
                 theta_(0.0)

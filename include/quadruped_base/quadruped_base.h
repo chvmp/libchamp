@@ -52,6 +52,20 @@ namespace champ
         }    
 
         public:
+            QuadrupedBase()
+            {
+                unsigned int total_legs = 0;
+
+                legs[total_legs++] = &lf;
+                legs[total_legs++] = &rf;
+                legs[total_legs++] = &lh;
+                legs[total_legs++] = &rh;
+
+                for(int i = 0; i < 4; i++)
+                {
+                    legs[i]->setGaitConfig(&gait_config);
+                }
+            }
             QuadrupedBase(champ::GaitConfig &gait_conf):        
                 gait_config(gait_conf)
             {
@@ -62,20 +76,10 @@ namespace champ
                 legs[total_legs++] = &lh;
                 legs[total_legs++] = &rh;
 
-                for(unsigned int i=0; i < 4; i++)
+                setGaitConfig(gait_config);
+                for(int i = 0; i < 4; i++)
                 {
-                    int dir;
-                    legs[i]->id(i);
-                    if(i < 2)
-                    {
-                        dir = getKneeDirection(gait_config.knee_orientation[0]);
-                    }
-                    else
-                    {
-                        dir = getKneeDirection(gait_config.knee_orientation[1]);
-                    }
-                    legs[i]->is_pantograph(gait_config.pantograph_leg);
-                    legs[i]->knee_direction(dir);
+                    legs[i]->setGaitConfig(&gait_config);
                 }
             }        
             
@@ -107,6 +111,27 @@ namespace champ
                     legs[i]->hip.theta(joints[index]);
                     legs[i]->upper_leg.theta(joints[index + 1]);
                     legs[i]->lower_leg.theta(joints[index + 2]);
+                }
+            }
+
+            void setGaitConfig(champ::GaitConfig &gait_conf)
+            {
+                gait_config = gait_conf;
+
+                for(unsigned int i=0; i < 4; i++)
+                {
+                    int dir;
+                    legs[i]->id(i);
+                    if(i < 2)
+                    {
+                        dir = getKneeDirection(gait_config.knee_orientation[0]);
+                    }
+                    else
+                    {
+                        dir = getKneeDirection(gait_config.knee_orientation[1]);
+                    }
+                    legs[i]->is_pantograph(gait_config.pantograph_leg);
+                    legs[i]->knee_direction(dir);
                 }
             }
             
