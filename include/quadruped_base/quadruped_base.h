@@ -79,25 +79,6 @@ namespace champ
                 }
             }        
             
-            void init()
-            {
-                for(unsigned int i=0; i < 4; i++)
-                {
-                    int dir;
-                    legs[i]->id(i);
-                    if(i < 2)
-                    {
-                        dir = getKneeDirection(gait_config.knee_orientation[0]);
-                    }
-                    else
-                    {
-                        dir = getKneeDirection(gait_config.knee_orientation[1]);
-                    }
-                    legs[i]->is_pantograph(gait_config.pantograph_leg);
-                    legs[i]->knee_direction(dir);
-                }
-            }
-
             void getJointPositions(float *joint_positions)
             {
                 unsigned int total_joints = 0;
