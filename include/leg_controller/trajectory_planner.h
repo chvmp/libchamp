@@ -37,9 +37,6 @@ namespace champ
     {
         QuadrupedLeg *leg_;
 
-        float swing_height_;
-        float step_length_;
-        float stance_depth_;
         unsigned int total_control_points_;
 
         geometry::Transformation prev_foot_position_;
@@ -88,10 +85,8 @@ namespace champ
         }
 
         public:
-            TrajectoryPlanner(QuadrupedLeg &leg, float swing_height, float stance_depth):
-                leg_(&leg),
-                swing_height_(swing_height),
-                stance_depth_(stance_depth),
+            TrajectoryPlanner(QuadrupedLeg &leg):
+                leg_(&leg),    
                 total_control_points_(12),
                 factorial_{1.0,1.0,2.0,6.0,24.0,120.0,720.0,5040.0,40320.0,362880.0,3628800.0,39916800.0,479001600.0},
                 ref_control_points_x_{-0.15, -0.2805,-0.3,-0.3,-0.3, 0.0, 0.0, 0.0, 0.3032, 0.3032, 0.2826, 0.15},
@@ -99,8 +94,6 @@ namespace champ
                 height_ratio_(0),
                 length_ratio_(0)
             {
-                updateControlPointsHeight(swing_height_);
-                updateControlPointsLength(step_length_);
             }
 
             void generate(geometry::Transformation &foot_position, float step_length, float rotation, float swing_phase_signal, float stance_phase_signal)
@@ -110,7 +103,7 @@ namespace champ
                 {
                     return;
                 }
-                
+                updateControlPointsHeight(leg_->gait_config->swing_height);
                 updateControlPointsLength(step_length);
                 leg_->gait_phase(1);
 
@@ -121,7 +114,7 @@ namespace champ
                 if(stance_phase_signal > swing_phase_signal)
                 {
                     x = (step_length / 2) * (1 - (2 * stance_phase_signal));
-                    y = -stance_depth_ * cosf((M_PI * x) / step_length);
+                    y = -leg_->gait_config->stance_depth * cosf((M_PI * x) / step_length);
                 }
                 else if(stance_phase_signal < swing_phase_signal)
                 {
