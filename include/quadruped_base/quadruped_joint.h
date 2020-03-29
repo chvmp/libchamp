@@ -28,30 +28,39 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef QUADRUPED_JOINT_H
 #define QUADRUPED_JOINT_H
 
+#include <quadruped_base/quadruped_components.h>
+
 namespace champ
 {
     class Joint
     {
-        float x_; 
-        float y_; 
-        float z_; 
+        // float translation_.x; 
+        // float translation_.y; 
+        // float translation_.z; 
 
-        float roll_; 
-        float pitch_; 
-        float yaw_;
+        // float rotation_.roll; 
+        // float rotation_.pitch; 
+        // float rotation_.yaw;
 
         float theta_;
 
+        champ::Point translation_;
+        champ::Euler rotation_;
+
         public:
-            Joint( float pos_x, float pos_y, float pos_z, float or_r, float or_p, float or_y):
-                x_(pos_x), 
-                y_(pos_y),
-                z_(pos_z),
-                roll_(or_r),
-                pitch_(or_p),
-                yaw_(or_y),
-                theta_(0)
+            Joint()
+            {
+            }
+            Joint(float pos_x, float pos_y, float pos_z, 
+                  float or_r,  float or_p,  float or_y):
+                theta_(0.0)
             { 
+                translation_.x = pos_x;
+                translation_.y = pos_y;
+                translation_.z = pos_z;
+                rotation_.roll = or_r;
+                rotation_.pitch = or_p;
+                rotation_.yaw = or_y;
             } 
 
             float theta()
@@ -64,35 +73,90 @@ namespace champ
                 theta_ = angle; 
             }
 
-            float x()
+            void setTranslation(float x, float y, float z)
             {
-                return x_;
+                translation_.x = x;
+                translation_.y = y;
+                translation_.z = z;
             }
 
-            float y()
+            void setRotation(float roll, float pitch, float yaw)
             {
-                return y_;
+                rotation_.roll = roll;
+                rotation_.pitch = pitch;
+                rotation_.yaw = yaw;
             }
 
-            float z()
+            void setOrigin(float x, float y, float z,
+                    float roll, float pitch, float yaw)
             {
-                return z_;
+                translation_.x = x;
+                translation_.y = y;
+                translation_.z = z;
+                rotation_.roll = roll;
+                rotation_.pitch = pitch;
+                rotation_.yaw = yaw;
             }
 
-            float roll()
+            const float x() const
             {
-                return roll_;
+                return translation_.x;
             }
 
-            float pitch()
+            const float y() const
             {
-                return pitch_;
+                return translation_.y;
             }
 
-            float yaw()
+            const float z() const
             {
-                return yaw_;
+                return translation_.z;
             }
+
+            const float roll() const
+            {
+                return rotation_.roll;
+            }
+
+            const float pitch() const
+            {
+                return rotation_.pitch;
+            }
+
+            const float yaw() const
+            {
+                return rotation_.yaw;
+            }
+
+            // void x(float x)
+            // {
+            //     translation_.x = x;
+            // }
+
+            // void y(float y)
+            // {
+            //     translation_.y = y;
+            // }
+
+            // void z(float z)
+            // {
+            //     translation_.z = z;
+            // }
+
+            // void roll(float roll)
+            // {
+            //     rotation_.roll = roll;
+            // }
+
+            // void pitch(float pitch)
+            // {
+            //     rotation_.pitch = pitch;
+            // }
+
+            // void yaw(float yaw)
+            // {
+            //     rotation_.yaw = yaw;
+            // }
     };
 }
 #endif
