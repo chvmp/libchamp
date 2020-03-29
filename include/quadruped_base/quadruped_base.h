@@ -61,13 +61,9 @@ namespace champ
                 legs[total_legs++] = &lh;
                 legs[total_legs++] = &rh;
 
-                for(int i = 0; i < 4; i++)
-                {
-                    legs[i]->setGaitConfig(&gait_config);
-                }
+                setGaitConfig(gait_config);
             }
-            QuadrupedBase(champ::GaitConfig &gait_conf):        
-                gait_config(gait_conf)
+            QuadrupedBase(champ::GaitConfig &gait_conf)     
             {
                 unsigned int total_legs = 0;
 
@@ -76,11 +72,7 @@ namespace champ
                 legs[total_legs++] = &lh;
                 legs[total_legs++] = &rh;
 
-                setGaitConfig(gait_config);
-                for(int i = 0; i < 4; i++)
-                {
-                    legs[i]->setGaitConfig(&gait_config);
-                }
+                setGaitConfig(gait_conf);
             }        
             
             void getJointPositions(float *joint_positions)
@@ -132,6 +124,8 @@ namespace champ
                     }
                     legs[i]->is_pantograph(gait_config.pantograph_leg);
                     legs[i]->knee_direction(dir);
+
+                    legs[i]->setGaitConfig(&gait_config);
                 }
             }
             
