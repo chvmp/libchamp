@@ -50,11 +50,11 @@ namespace champ
         public:
             LegController(QuadrupedBase &quadruped_base):
                 base_(&quadruped_base),     
-                phase_generator(base_->gait_config->stance_duration),
-                lf(*base_->lf, base_->gait_config->swing_height, base_->gait_config->stance_depth),
-                rf(*base_->rf, base_->gait_config->swing_height, base_->gait_config->stance_depth),
-                lh(*base_->lh, base_->gait_config->swing_height, base_->gait_config->stance_depth),
-                rh(*base_->rh, base_->gait_config->swing_height, base_->gait_config->stance_depth)
+                phase_generator(base_->gait_config.stance_duration),
+                lf(base_->lf, base_->gait_config.swing_height, base_->gait_config.stance_depth),
+                rf(base_->rf, base_->gait_config.swing_height, base_->gait_config.stance_depth),
+                lh(base_->lh, base_->gait_config.swing_height, base_->gait_config.stance_depth),
+                rh(base_->rh, base_->gait_config.swing_height, base_->gait_config.stance_depth)
             {
                 unsigned int total_legs = 0;
                 
@@ -93,20 +93,20 @@ namespace champ
             void velocityCommand(geometry::Transformation (&foot_positions)[4], champ::Velocities &req_vel)
             {
                 //limit all velocities to user input
-                req_vel.linear.x = capVelocities(req_vel.linear.x, -base_->gait_config->max_linear_velocity_x, base_->gait_config->max_linear_velocity_x);
-                req_vel.linear.y = capVelocities(req_vel.linear.y, -base_->gait_config->max_linear_velocity_y, base_->gait_config->max_linear_velocity_y);
-                req_vel.angular.z = capVelocities(req_vel.angular.z, -base_->gait_config->max_angular_velocity_z, base_->gait_config->max_angular_velocity_z);
+                req_vel.linear.x = capVelocities(req_vel.linear.x, -base_->gait_config.max_linear_velocity_x, base_->gait_config.max_linear_velocity_x);
+                req_vel.linear.y = capVelocities(req_vel.linear.y, -base_->gait_config.max_linear_velocity_y, base_->gait_config.max_linear_velocity_y);
+                req_vel.angular.z = capVelocities(req_vel.angular.z, -base_->gait_config.max_angular_velocity_z, base_->gait_config.max_angular_velocity_z);
                 
-                float tangential_velocity = req_vel.angular.z * base_->lf->center_to_nominal();
+                float tangential_velocity = req_vel.angular.z * base_->lf.center_to_nominal();
                 float velocity =  sqrtf(pow(req_vel.linear.x, 2) + pow(req_vel.linear.y + abs(tangential_velocity), 2));
                 
                 //calculate optimal distance to hop based
-                float step_x = raibertHeuristic(base_->gait_config->stance_duration, req_vel.linear.x);
-                float step_y = raibertHeuristic(base_->gait_config->stance_duration, req_vel.linear.y);
-                float step_theta = raibertHeuristic(base_->gait_config->stance_duration, tangential_velocity);
+                float step_x = raibertHeuristic(base_->gait_config.stance_duration, req_vel.linear.x);
+                float step_y = raibertHeuristic(base_->gait_config.stance_duration, req_vel.linear.y);
+                float step_theta = raibertHeuristic(base_->gait_config.stance_duration, tangential_velocity);
                 
                 //calculate the angle from leg when zero to optimal distance to hop
-                float theta = sinf(step_theta / base_->lf->center_to_nominal());
+                float theta = sinf(step_theta / base_->lf.center_to_nominal());
 
                 float step_lengths[4] = {0.0f,0.0f,0.0f,0.0f};
                 float trajectory_rotations[4] = {0.0f,0.0f,0.0f,0.0f};    
