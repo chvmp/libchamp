@@ -53,21 +53,21 @@ namespace champ
         // float getGaitCycleCount(float target_velocity);
         void updateControlPointsHeight(float swing_height)
         {
-            float new_height_ratio = swing_height / 0.15;
+            float new_height_ratio = swing_height / 0.15f;
             
             if(height_ratio_ != new_height_ratio)
             {
                 height_ratio_ = new_height_ratio;
                 for(unsigned int i = 0; i < 12; i++)
                 {
-                    control_points_y_[i] = -((ref_control_points_y_[i] * height_ratio_) + (0.5 * height_ratio_));
+                    control_points_y_[i] = -((ref_control_points_y_[i] * height_ratio_) + (0.5f * height_ratio_));
                 }    
             }
         }
 
         void updateControlPointsLength(float step_length)
         {
-            float new_length_ratio = step_length / 0.4;
+            float new_length_ratio = step_length / 0.4f;
             
             if(length_ratio_ != new_length_ratio)
             {
@@ -75,9 +75,9 @@ namespace champ
                 for(unsigned int i = 0; i < 12; i++)
                 {
                     if(i == 0)
-                        control_points_x_[i] = -step_length / 2.0;
+                        control_points_x_[i] = -step_length / 2.0f;
                     else if(i == 11)
-                        control_points_x_[i] = step_length / 2.0;
+                        control_points_x_[i] = step_length / 2.0f;
                     else
                         control_points_x_[i] = ref_control_points_x_[i] * length_ratio_;   
                 }
@@ -91,25 +91,27 @@ namespace champ
                 factorial_{1.0,1.0,2.0,6.0,24.0,120.0,720.0,5040.0,40320.0,362880.0,3628800.0,39916800.0,479001600.0},
                 ref_control_points_x_{-0.15, -0.2805,-0.3,-0.3,-0.3, 0.0, 0.0, 0.0, 0.3032, 0.3032, 0.2826, 0.15},
                 ref_control_points_y_{-0.5, -0.5, -0.3611, -0.3611, -0.3611, -0.3611, -0.3611, -0.3214, -0.3214, -0.3214, -0.5, -0.5},
-                height_ratio_(0),
-                length_ratio_(0)
+                height_ratio_(0.0f),
+                length_ratio_(0.0f)
             {
             }
 
             void generate(geometry::Transformation &foot_position, float step_length, float rotation, float swing_phase_signal, float stance_phase_signal)
             {    
                 //check if there's a need to hop otherwise nothing to do here
-                if(step_length == 0)
+                if(step_length == 0.0f)
                 {
                     return;
                 }
+
                 updateControlPointsHeight(leg_->gait_config->swing_height);
                 updateControlPointsLength(step_length);
+
                 leg_->gait_phase(1);
 
                 int n = total_control_points_ - 1;
-                float x = 0.0;
-                float y = 0.0;
+                float x = 0.0f;
+                float y = 0.0f;
 
                 if(stance_phase_signal > swing_phase_signal)
                 {
@@ -133,7 +135,7 @@ namespace champ
                 foot_position.Y() += x * sinf(rotation);
                 foot_position.Z() += y;
 
-                if((swing_phase_signal > 0.0 && stance_phase_signal > 0.0) && step_length > 0.0)
+                if((swing_phase_signal > 0.0f && stance_phase_signal > 0.0f) && step_length > 0.0f)
                 {
                     foot_position = prev_foot_position_;
                 }
