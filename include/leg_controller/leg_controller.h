@@ -106,7 +106,7 @@ namespace champ
                 float step_theta = raibertHeuristic(base_->gait_config.stance_duration, tangential_velocity);
                 
                 //calculate the angle from leg when zero to optimal distance to hop
-                float theta = sinf(step_theta / base_->lf.center_to_nominal());
+                float theta = sinf((step_theta / 2) / base_->lf.center_to_nominal()) * 2;
 
                 float step_lengths[4] = {0.0f,0.0f,0.0f,0.0f};
                 float trajectory_rotations[4] = {0.0f,0.0f,0.0f,0.0f};    
