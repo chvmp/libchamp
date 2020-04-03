@@ -1,7 +1,6 @@
 /*
 Copyright (c) 2019-2020, Juan Miguel Jimeno
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
     * Redistributions of source code must retain the above copyright
@@ -12,7 +11,6 @@ modification, are permitted provided that the following conditions are met:
     * Neither the name of the copyright holder nor the names of its
       contributors may be used to endorse or promote products derived
       from this software without specific prior written permission.
-
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,13 +40,20 @@ namespace champ
         unsigned long int prev_time_;
         int theta_direction_[4];
 
+        champ::Velocities prev_vel_;
+
+        float alpha_;
+        float beta_;
+
         public:
             Odometry(QuadrupedBase &quadruped_base):
                 base_(&quadruped_base),
                 prev_gait_phase_{1,1,1,1},
                 prev_theta_{0,0,0,0},
                 prev_time_(0),
-                theta_direction_{1,1,-1,-1}
+                theta_direction_{1,1,-1,-1},
+                alpha_(0.2),
+                beta_(0.8)
             {
                 for(unsigned int i = 0; i < 4; i++)
                 {
@@ -99,13 +104,15 @@ namespace champ
                 unsigned long int now = time_us();
                 double dt = (now - prev_time_) / 1000000.0;
                 
-                vel.linear.x = x_sum / dt;
-                vel.linear.y = y_sum / dt;
-                vel.angular.z = theta_sum / dt;
+                vel.linear.x = (alpha_ * (x_sum / dt)) + (beta_ * prev_vel_.linear.x);
+                vel.linear.y = (alpha_ * (y_sum / dt)) + (beta_ * prev_vel_.linear.y);
+                vel.angular.z = (alpha_ * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z);
                 
+                prev_vel_ = vel;
                 prev_time_ = now;
             }
     };
 }
 
 #endif
+
