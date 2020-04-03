@@ -135,7 +135,7 @@ namespace champ
                 foot_position.Y() += x * sinf(rotation);
                 foot_position.Z() += y;
 
-                if((swing_phase_signal > 0.0f && stance_phase_signal > 0.0f) && step_length > 0.0f)
+                if((swing_phase_signal == 0.0f && stance_phase_signal == 0.0f) && step_length > 0.0f)
                 {
                     foot_position = prev_foot_position_;
                 }
