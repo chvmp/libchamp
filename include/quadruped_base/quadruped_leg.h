@@ -147,7 +147,10 @@ namespace champ
 
             float center_to_nominal()
             {
-                return sqrtf(pow(zero_stance_.X(),2) + pow(zero_stance_.Y(),2));
+                float x = hip.x() + upper_leg.x();
+                float y = hip.y() + upper_leg.y() + lower_leg.y() + foot.y();
+                
+                return sqrtf(pow(x,2) + pow(y,2));
             }
 
             unsigned int  id()
