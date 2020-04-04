@@ -98,13 +98,16 @@ namespace champ
 
             void generate(geometry::Transformation &foot_position, float step_length, float rotation, float swing_phase_signal, float stance_phase_signal)
             {    
+                updateControlPointsHeight(leg_->gait_config->swing_height);
+
                 //check if there's a need to hop otherwise nothing to do here
                 if(step_length == 0.0f)
                 {
+                    prev_foot_position_ = foot_position;
+
                     return;
                 }
 
-                updateControlPointsHeight(leg_->gait_config->swing_height);
                 updateControlPointsLength(step_length);
 
                 leg_->gait_phase(1);
