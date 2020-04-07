@@ -62,7 +62,16 @@ namespace champ
             }        
             
             void getVelocities(champ::Velocities &vel)
-            {
+                {      
+                //if all legs are on the ground, nothing to calculate
+                if(base_->legs[0]->gait_phase() &&
+                   base_->legs[1]->gait_phase() &&
+                   base_->legs[2]->gait_phase() &&
+                   base_->legs[3]->gait_phase())
+                {
+                    return;
+                }
+
                 unsigned int total_contact = 0;
                 float x_sum = 0;
                 float y_sum = 0;
