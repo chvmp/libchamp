@@ -67,9 +67,10 @@ namespace champ
                 foot_position.Translate(0.0f, 0.0f, -delta_height);
 
                 //rotate the leg opposite the required orientation of the body
-                foot_position.RotateX(-req_pose.orientation.roll);
-                foot_position.RotateY(-req_pose.orientation.pitch);
                 foot_position.RotateZ(-req_pose.orientation.yaw);
+                foot_position.RotateY(-req_pose.orientation.pitch);
+                foot_position.RotateX(-req_pose.orientation.roll);
+            
     
                 champ::Kinematics::transformToHip(foot_position, leg);
             }
