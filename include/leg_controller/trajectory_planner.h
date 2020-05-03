@@ -50,6 +50,8 @@ namespace champ
         float height_ratio_;
         float length_ratio_;
 
+        bool run_once_;
+
         // float getGaitCycleCount(float target_velocity);
         void updateControlPointsHeight(float swing_height)
         {
@@ -92,7 +94,8 @@ namespace champ
                 ref_control_points_x_{-0.15, -0.2805,-0.3,-0.3,-0.3, 0.0, 0.0, 0.0, 0.3032, 0.3032, 0.2826, 0.15},
                 ref_control_points_y_{-0.5, -0.5, -0.3611, -0.3611, -0.3611, -0.3611, -0.3611, -0.3214, -0.3214, -0.3214, -0.5, -0.5},
                 height_ratio_(0.0f),
-                length_ratio_(0.0f)
+                length_ratio_(0.0f),
+                run_once_(false)
             {
             }
 
@@ -100,7 +103,14 @@ namespace champ
             {    
                 updateControlPointsHeight(leg_->gait_config->swing_height);
 
-                //check if there's a need to hop otherwise nothing to do here
+                //ensures the prev_foot_position_ is not empty on first run
+                if(!run_once_)
+                {
+                    run_once_ = true;
+                    prev_foot_position_ = foot_position;                    
+                }
+
+                //check if there's a need to hop, otherwise nothing to do here
                 if(step_length == 0.0f)
                 {
                     prev_foot_position_ = foot_position;
