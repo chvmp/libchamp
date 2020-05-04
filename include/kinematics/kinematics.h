@@ -105,6 +105,24 @@ namespace champ
                 lower_leg_joint = leg.knee_direction() * acosf((pow(z, 2) + pow(x, 2) - pow(l1 ,2) - pow(l2 ,2)) / (2 * l1 * l2));
                 upper_leg_joint = (atanf(x / z) - atanf((l2 * sinf(lower_leg_joint)) / (l1 + (l2 * cosf(lower_leg_joint)))));
                 
+                
+                //switch back the upper leg joint angle to a sane angle once the target is unreachable
+                //TODO: create unreachability checks
+                if(leg.knee_direction() < 0)
+                {
+                    if(upper_leg_joint < 0)
+                    {
+                        upper_leg_joint = upper_leg_joint +  M_PI;
+                    }
+                }
+                else 
+                {
+                    if(upper_leg_joint > 0)
+                    {
+                        upper_leg_joint = upper_leg_joint +  M_PI;
+                    }
+                }
+
                 lower_leg_joint += ik_beta;
                 upper_leg_joint += ik_alpha;
             }
