@@ -101,13 +101,19 @@ namespace champ
                 x = temp_foot_pos.X();
                 y = temp_foot_pos.Y();
                 z = temp_foot_pos.Z();
-                
+
+                //reachability check
+                float target_to_foot = sqrtf(pow(x, 2) + pow(z,2));
+                if(target_to_foot >= (abs(l1) + abs(l2)))
+                    return;
+
+                //source: https://robotacademy.net.au/lesson/inverse-kinematics-for-a-2-joint-robot-arm-using-geometry/
                 lower_leg_joint = leg.knee_direction() * acosf((pow(z, 2) + pow(x, 2) - pow(l1 ,2) - pow(l2 ,2)) / (2 * l1 * l2));
                 upper_leg_joint = (atanf(x / z) - atanf((l2 * sinf(lower_leg_joint)) / (l1 + (l2 * cosf(lower_leg_joint)))));
                 
                 
-                //switch back the upper leg joint angle to a sane angle once the target is unreachable
-                //TODO: create unreachability checks
+                // //switch back the upper leg joint angle to a sane angle once the target is unreachable
+                // //TODO: create unreachability checks
                 if(leg.knee_direction() < 0)
                 {
                     if(upper_leg_joint < 0)
@@ -121,6 +127,11 @@ namespace champ
                     {
                         upper_leg_joint = upper_leg_joint +  M_PI;
                     }
+                }
+                //if the leg has reached this angle most likely it has crossed 0, heading to -pi
+                if(upper_leg_joint > (M_PI / 2))
+                {
+                    upper_leg_joint = M_PI - upper_leg_joint;
                 }
 
                 lower_leg_joint += ik_beta;
@@ -167,9 +178,9 @@ namespace champ
 
             static void transformToBase(geometry::Transformation &foot_position, const champ::QuadrupedLeg &leg)
             {
-                foot_position.RotateX(leg.hip.roll());
-                foot_position.RotateY(leg.hip.pitch());
                 foot_position.RotateZ(leg.hip.yaw());
+                foot_position.RotateY(leg.hip.pitch());
+                foot_position.RotateX(leg.hip.roll());
                 foot_position.Translate(leg.hip.x(), leg.hip.y(), leg.hip.z());
             }
     };
