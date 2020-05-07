@@ -114,13 +114,12 @@ namespace champ
                 if(step_length == 0.0f)
                 {
                     prev_foot_position_ = foot_position;
+                    leg_->gait_phase(1);
 
                     return;
                 }
 
                 updateControlPointsLength(step_length);
-
-                leg_->gait_phase(1);
 
                 int n = total_control_points_ - 1;
                 float x = 0.0f;
@@ -128,6 +127,8 @@ namespace champ
 
                 if(stance_phase_signal > swing_phase_signal)
                 {
+                    leg_->gait_phase(1);
+
                     x = (step_length / 2) * (1 - (2 * stance_phase_signal));
                     y = -leg_->gait_config->stance_depth * cosf((M_PI * x) / step_length);
                 }
