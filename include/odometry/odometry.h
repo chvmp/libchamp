@@ -69,6 +69,10 @@ namespace champ
                    base_->legs[2]->gait_phase() &&
                    base_->legs[3]->gait_phase())
                 {
+                    vel.linear.x = 0;
+                    vel.linear.y = 0;
+                    vel.angular.z = 0;
+
                     return;
                 }
 
