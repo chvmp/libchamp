@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __unix__
     #include <sys/time.h>
-    #include <cmath>
     //source: https://gist.github.com/sevko/d23646ba07c77c15fde9
     #define time_us() ({ \
         struct timeval currentTime;\

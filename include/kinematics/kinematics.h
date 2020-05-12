@@ -28,6 +28,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
+#ifdef __unix__
+    #include <cmath>
+    using namespace std;
+#endif
+
 #include <macros/macros.h>
 #include <geometry/geometry.h>
 #include <quadruped_base/quadruped_base.h>
