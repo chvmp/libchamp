@@ -27,6 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ODOMETRY_H
 
 #include <quadruped_base/quadruped_base.h>
+#include <macros/macros.h>
+
 #include <geometry/geometry.h>
 
 namespace champ
