@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         gettimeofday(&currentTime, NULL);\
         currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;\
     })
-    #define isnan std::isnan
 #else   
     #include <Arduino.h>
 
