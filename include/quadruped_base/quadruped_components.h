@@ -180,7 +180,7 @@ namespace champ
                     max_linear_velocity_x(max_l_x),
                     max_linear_velocity_y(max_l_y),
                     max_angular_velocity_z(max_a_z),
-                    com_x_translation(com_x_translation),
+                    com_x_translation(com_x_trans),
                     swing_height(swing_h),
                     stance_depth(stan_dep),
                     stance_duration(stan_dur),
