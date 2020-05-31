@@ -138,7 +138,7 @@ namespace champ
 
             geometry::Transformation zero_stance()
             {
-                zero_stance_.X() = hip.x() + upper_leg.x();
+                zero_stance_.X() = hip.x() + upper_leg.x() + gait_config->com_x_translation;
                 zero_stance_.Y() = hip.y() + upper_leg.y() + lower_leg.y() + foot.y();
                 zero_stance_.Z() = hip.z() + upper_leg.z() + lower_leg.z() + foot.z();
                 
