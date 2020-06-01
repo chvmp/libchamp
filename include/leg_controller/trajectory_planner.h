@@ -143,6 +143,8 @@ namespace champ
                         x += coeff * pow(swing_phase_signal, i) * pow((1 - swing_phase_signal), (n - i)) * control_points_x_[i];
                         y -= coeff * pow(swing_phase_signal, i) * pow((1 - swing_phase_signal), (n - i)) * control_points_y_[i];
                     }
+                    // x = -(step_length / 2) * (1 - (2 * swing_phase_signal));
+                    // y = leg_->gait_config->swing_height * cosf((M_PI * x) / step_length);
                 }
     
                 foot_position.X() += x * cosf(rotation);
