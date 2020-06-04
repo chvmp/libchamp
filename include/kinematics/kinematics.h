@@ -75,29 +75,23 @@ namespace champ
             {
                 geometry::Transformation temp_foot_pos = foot_position;
 
-                float upper_to_lower_leg_x = leg.lower_leg.x();
-                float lower_leg_to_foot_x  = leg.foot.x();
-                float upper_to_lower_leg_z = leg.lower_leg.z();
-                float lower_leg_to_foot_z  = leg.foot.z();
-
-                float ik_alpha_h = -sqrtf(pow(upper_to_lower_leg_x, 2) + pow(upper_to_lower_leg_z, 2));
-                float ik_alpha = acosf(upper_to_lower_leg_x / ik_alpha_h) - (M_PI / 2); 
-
-                float ik_beta_h = -sqrtf(pow(lower_leg_to_foot_x, 2) + pow(lower_leg_to_foot_z, 2));
-                float ik_beta = acosf(lower_leg_to_foot_x / ik_beta_h) - (M_PI / 2); 
-
-                float x = temp_foot_pos.X();
-                float y = temp_foot_pos.Y();
-                float z = temp_foot_pos.Z();
                 float l0 = 0.0f;
-                float l1 = ik_alpha_h;
-                float l2 = ik_beta_h;
 
                 for(unsigned int i = 1; i < 4; i++)
                 {
                     l0 += leg.joint_chain[i]->y();
                 }
 
+                float l1 = -sqrtf(pow(leg.lower_leg.x(), 2) + pow(leg.lower_leg.z(), 2));
+                float ik_alpha = acosf(leg.lower_leg.x() / l1) - (M_PI / 2); 
+
+                float l2 = -sqrtf(pow(leg.foot.x(), 2) + pow(leg.foot.z(), 2));
+                float ik_beta = acosf(leg.foot.x() / l2) - (M_PI / 2); 
+
+                float x = temp_foot_pos.X();
+                float y = temp_foot_pos.Y();
+                float z = temp_foot_pos.Z();
+            
                 hip_joint = -(atanf(y / z) - ((M_PI/2) - acosf(-l0 / sqrtf(pow(y, 2) + pow(z, 2)))));
 
                 temp_foot_pos.RotateX(-hip_joint);
@@ -115,8 +109,9 @@ namespace champ
                 //source: https://robotacademy.net.au/lesson/inverse-kinematics-for-a-2-joint-robot-arm-using-geometry/
                 lower_leg_joint = leg.knee_direction() * acosf((pow(z, 2) + pow(x, 2) - pow(l1 ,2) - pow(l2 ,2)) / (2 * l1 * l2));
                 upper_leg_joint = (atanf(x / z) - atanf((l2 * sinf(lower_leg_joint)) / (l1 + (l2 * cosf(lower_leg_joint)))));
-                
-                
+                lower_leg_joint += ik_beta - ik_alpha;
+                upper_leg_joint += ik_alpha;
+
                 // //switch back the upper leg joint angle to a sane angle once the target is unreachable
                 // //TODO: create unreachability checks
                 if(leg.knee_direction() < 0)
@@ -138,9 +133,6 @@ namespace champ
                 {
                     upper_leg_joint = M_PI - upper_leg_joint;
                 }
-
-                lower_leg_joint += ik_beta;
-                upper_leg_joint += ik_alpha;
             }
 
             static void forward(geometry::Transformation foot_position, const champ::QuadrupedLeg &leg, 
