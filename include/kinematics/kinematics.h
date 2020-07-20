@@ -128,11 +128,6 @@ namespace champ
                         upper_leg_joint = upper_leg_joint +  M_PI;
                     }
                 }
-                //if the leg has reached this angle most likely it has crossed 0, heading to -pi
-                if(upper_leg_joint > (M_PI / 2))
-                {
-                    upper_leg_joint = M_PI - upper_leg_joint;
-                }
             }
 
             static void forward(geometry::Transformation foot_position, const champ::QuadrupedLeg &leg, 
