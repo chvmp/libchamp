@@ -119,9 +119,9 @@ namespace champ
                 unsigned long int now = time_us();
                 double dt = (now - prev_time_) / 1000000.0;
                 
-                vel.linear.x = (alpha_ * (x_sum / dt)) + (beta_ * prev_vel_.linear.x);
-                vel.linear.y = (alpha_ * (y_sum / dt)) + (beta_ * prev_vel_.linear.y);
-                vel.angular.z = (alpha_ * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z);
+                vel.linear.x = (alpha_ * (x_sum / dt)) + (beta_ * prev_vel_.linear.x) * base_->gait_config.odom_scaler;
+                vel.linear.y = (alpha_ * (y_sum / dt)) + (beta_ * prev_vel_.linear.y) * base_->gait_config.odom_scaler;
+                vel.angular.z = (alpha_ * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z) * base_->gait_config.odom_scaler;
                 
                 prev_vel_ = vel;
                 prev_time_ = now;
