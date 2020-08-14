@@ -69,7 +69,7 @@ namespace champ
             pose->rotation.setFromRPY(roll, pitch, yaw);
         }
 
-        void fillLeg(champ::QuadrupedLeg *leg, ros::NodeHandle nh, urdf::Model &model, std::string links_map)
+        void fillLeg(champ::QuadrupedLeg *leg, ros::NodeHandle *nh, urdf::Model &model, std::string links_map)
         {
             xh::Array output;
             xh::fetchParam(nh, links_map, output);
@@ -106,7 +106,7 @@ namespace champ
             }
         }
 
-        void loadFromServer(champ::QuadrupedBase &base, ros::NodeHandle nh)
+        void loadFromServer(champ::QuadrupedBase &base, ros::NodeHandle *nh)
         {
             urdf::Model model;
             if (!model.initParam("robot_description")){
@@ -127,7 +127,7 @@ namespace champ
             }
         }
 
-        std::vector<std::string> getJointNames(ros::NodeHandle nh)
+        std::vector<std::string> getJointNames(ros::NodeHandle *nh)
         {
             std::vector<std::string> joints_map;
             std::vector<std::string> joint_names;

@@ -54,14 +54,14 @@ typedef XmlRpc::XmlRpcValue Struct;
 typedef XmlRpc::XmlRpcValue Array;
 
 template <class T>
-void fetchParam(ros::NodeHandle nh, const std::string& param_name, T& output)
+void fetchParam(ros::NodeHandle *nh, const std::string& param_name, T& output)
 {
     XmlRpc::XmlRpcValue val;
-    if (!nh.getParamCached(param_name, val))
+    if (!nh->getParamCached(param_name, val))
     {
         std::ostringstream err_msg;
         err_msg << "could not load parameter '" << param_name << "'. (namespace: "
-        << nh.getNamespace() << ")";
+        << nh->getNamespace() << ")";
         throw XmlrpcHelperException(err_msg.str());
     }
 
