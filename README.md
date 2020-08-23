@@ -5,7 +5,7 @@ CHAMP's core libraries
 ### Papers
 
 - [Hierarchical controller for highly dynamic locomotion utilizing pattern modulation and impedance control : implementation on the MIT Cheetah robot](https://dspace.mit.edu/handle/1721.1/85490)
-- [Control of Forward Velocity for a Simplified Planer Hopping Robot](https://kodlab.seas.upenn.edu/uploads/Kod/Schwind95.pdf)
+- [Control of Forward Velocity for a Simplified Planar Hopping Robot](https://kodlab.seas.upenn.edu/uploads/Kod/Schwind95.pdf)
 
 ### Libraries
 
