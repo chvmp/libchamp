@@ -122,9 +122,9 @@ namespace champ
 
                 double dt = (now - prev_time_) / 1000000.0;
                 
-                vel.linear.x =  (beta_ * ((x_sum * base_->gait_config.odom_scaler) / dt)) + ((1 - beta_) * prev_vel_.linear.x);
-                vel.linear.y =  (beta_ * ((y_sum * base_->gait_config.odom_scaler) / dt)) + ((1 - beta_) * prev_vel_.linear.y);
-                vel.angular.z = (beta_ * (theta_sum / dt)) + ((1 - beta_) * prev_vel_.angular.z);
+                vel.linear.x =  ((1 - beta_) * ((x_sum * base_->gait_config.odom_scaler) / dt)) + (beta_ * prev_vel_.linear.x);
+                vel.linear.y =  ((1 - beta_) * ((y_sum * base_->gait_config.odom_scaler) / dt)) + (beta_ * prev_vel_.linear.y);
+                vel.angular.z = ((1- beta_ ) * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z);
                 
                 prev_vel_ = vel;
                 prev_time_ = now;
