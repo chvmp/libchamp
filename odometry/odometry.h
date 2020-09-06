@@ -40,11 +40,7 @@ namespace champ
         bool prev_gait_phase_[4];
         float prev_theta_[4];
         unsigned long int prev_time_;
-        int theta_direction_[4];
-
         champ::Velocities prev_vel_;
-
-        float alpha_;
         float beta_;
 
         public:
@@ -53,27 +49,31 @@ namespace champ
                 prev_gait_phase_{1,1,1,1},
                 prev_theta_{0,0,0,0},
                 prev_time_(0),
-                theta_direction_{1,1,-1,-1},
-                alpha_(0.2),
-                beta_(0.8)
+                beta_(0.98)
             {
                 for(unsigned int i = 0; i < 4; i++)
                 {
-                    prev_foot_position_[i] = base_->legs[i]->foot_from_hip();
+                    prev_foot_position_[i] = base_->legs[i]->foot_from_base();
                 }
             }        
             
-            void getVelocities(champ::Velocities &vel)
+            void getVelocities(champ::Velocities &vel, bool close_loop)
                 {      
+                unsigned long int now = time_us();
+
                 //if all legs are on the ground, nothing to calculate
                 if(base_->legs[0]->gait_phase() &&
                    base_->legs[1]->gait_phase() &&
                    base_->legs[2]->gait_phase() &&
                    base_->legs[3]->gait_phase())
                 {
-                    vel.linear.x = 0;
-                    vel.linear.y = 0;
-                    vel.angular.z = 0;
+                    vel.linear.x = 0.0;
+                    vel.linear.y = 0.0;
+                    vel.angular.z = 0.0;
+
+                    prev_vel_.linear.x = 0.0;
+                    prev_vel_.linear.y = 0.0;
+                    prev_vel_.angular.z = 0.0;
 
                     return;
                 }
@@ -95,33 +95,36 @@ namespace champ
                     float current_theta = atan2f(current_foot_position.Y(), current_foot_position.X());
                     float delta_theta = (prev_theta_[i] - current_theta);
 
-                    if(current_gait_phase && prev_gait_phase_[i])
+                    if(prev_gait_phase_[i])
                     {
                         total_contact += 1;
-                
-                        x_sum += delta_x;
-                        y_sum += delta_y;
                         theta_sum += delta_theta;
                     }
+                        
+                    x_sum += delta_x * base_->legs[i]->gait_phase();
+                    y_sum += delta_y * base_->legs[i]->gait_phase();
 
                     prev_foot_position_[i] = current_foot_position;
                     prev_gait_phase_[i] = current_gait_phase;
                     prev_theta_[i] = current_theta;
                 }
 
-                if(total_contact > 1)
+                if(total_contact > 0)
                 {
-                    x_sum /= total_contact;
-                    y_sum /= total_contact;
+                    if(!close_loop)
+                    {
+                        x_sum /= total_contact;
+                        y_sum /= total_contact;
+                    }
+                    
                     theta_sum /= total_contact;
                 }
 
-                unsigned long int now = time_us();
                 double dt = (now - prev_time_) / 1000000.0;
                 
-                vel.linear.x = (alpha_ * (x_sum / dt)) + (beta_ * prev_vel_.linear.x) * base_->gait_config.odom_scaler;
-                vel.linear.y = (alpha_ * (y_sum / dt)) + (beta_ * prev_vel_.linear.y) * base_->gait_config.odom_scaler;
-                vel.angular.z = (alpha_ * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z) * base_->gait_config.odom_scaler;
+                vel.linear.x =  (beta_ * ((x_sum * base_->gait_config.odom_scaler) / dt)) + ((1 - beta_) * prev_vel_.linear.x);
+                vel.linear.y =  (beta_ * ((y_sum * base_->gait_config.odom_scaler) / dt)) + ((1 - beta_) * prev_vel_.linear.y);
+                vel.angular.z = (beta_ * (theta_sum / dt)) + ((1 - beta_) * prev_vel_.angular.z);
                 
                 prev_vel_ = vel;
                 prev_time_ = now;
