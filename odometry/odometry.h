@@ -49,7 +49,7 @@ namespace champ
                 prev_gait_phase_{1,1,1,1},
                 prev_theta_{0,0,0,0},
                 prev_time_(0),
-                beta_(0.98)
+                beta_(0.1)
             {
                 for(unsigned int i = 0; i < 4; i++)
                 {
@@ -57,15 +57,43 @@ namespace champ
                 }
             }        
             
-            void getVelocities(champ::Velocities &vel, bool close_loop)
-                {      
-                unsigned long int now = time_us();
-
-                //if all legs are on the ground, nothing to calculate
+            bool allFeetInContact()
+            {
                 if(base_->legs[0]->gait_phase() &&
                    base_->legs[1]->gait_phase() &&
                    base_->legs[2]->gait_phase() &&
                    base_->legs[3]->gait_phase())
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            bool noFootInContact()
+            {
+                if(!base_->legs[0]->gait_phase() &&
+                   !base_->legs[1]->gait_phase() &&
+                   !base_->legs[2]->gait_phase() &&
+                   !base_->legs[3]->gait_phase())
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            void getVelocities(champ::Velocities &vel, bool close_loop)
+            {      
+                unsigned long int now = time_us();
+
+                //if all legs are on the ground, nothing to calculate
+                //or if no legs are on the ground, probably the robot is upside-down
+                if(allFeetInContact() || noFootInContact())
                 {
                     vel.linear.x = 0.0;
                     vel.linear.y = 0.0;
