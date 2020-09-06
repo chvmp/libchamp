@@ -153,6 +153,32 @@ namespace champ
 
             return joint_names;
         }
+
+        std::vector<std::string> getLinkNames(ros::NodeHandle *nh)
+        {
+            std::vector<std::string> links_map;
+            std::vector<std::string> links_name;
+
+            links_map.push_back("links_map/left_front");
+            links_map.push_back("links_map/right_front");
+            links_map.push_back("links_map/left_hind");
+            links_map.push_back("links_map/right_hind");
+
+            for(int i = 0; i < 4; i++)
+            {
+                xh::Array output;
+                xh::fetchParam(nh, links_map[i], output);
+                xh::Struct output_i;
+                for(int j = 0; j < 4; j++)
+                {
+                    std::string link_name;
+                    xh::getArrayItem(output, j, link_name);
+                    links_name.push_back(link_name);
+                }
+            }
+
+            return links_name;
+        }
     }
 }
 
