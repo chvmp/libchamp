@@ -58,13 +58,25 @@ namespace champ
                                     champ::QuadrupedLeg &leg, 
                                     const champ::Pose &req_pose)
             {
-                float delta_height = leg.zero_stance().Z() + req_pose.position.z;
+                float req_translation = -(leg.zero_stance().Z() + req_pose.position.z);
+                float max_translation = -leg.zero_stance().Z() * 0.65;
+
+                //there shouldn't be any negative translation when
+                //the legs are already fully stretched
+                if(req_translation < 0.0)
+                {
+                    req_translation = 0.0;
+                }
+                else if(req_translation > max_translation)
+                {
+                    req_translation = max_translation;
+                }
 
                 //create a new foot position from position of legs when stretched out
                 foot_position = leg.zero_stance();
 
                 //move the foot position to desired height of the robot
-                foot_position.Translate(0.0f, 0.0f, -delta_height);
+                foot_position.Translate(0.0f, 0.0f, req_translation);
 
                 //rotate the leg opposite the required orientation of the body
                 foot_position.RotateZ(-req_pose.orientation.yaw);
