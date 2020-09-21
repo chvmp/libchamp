@@ -95,9 +95,6 @@ namespace champ
                 foot_position.p = foot_from_hip().p;
                 foot_position.RotateX(hip.theta());
 
-                foot_position.RotateX(hip.roll());
-                foot_position.RotateY(hip.pitch());
-                foot_position.RotateZ(hip.yaw());
                 foot_position.Translate(hip.x(), hip.y(), hip.z());
 
                 return foot_position;
@@ -115,9 +112,6 @@ namespace champ
 
             void transformToBase(geometry::Transformation &foot)
             {
-                foot.RotateX(hip.roll());
-                foot.RotateY(hip.pitch());
-                foot.RotateZ(hip.yaw());
                 foot.Translate(hip.x(), hip.y(), hip.z());
             }
 
@@ -139,7 +133,7 @@ namespace champ
             geometry::Transformation zero_stance()
             {
                 zero_stance_.X() = hip.x() + upper_leg.x() + gait_config->com_x_translation;
-                zero_stance_.Y() = hip.y() + upper_leg.y() + lower_leg.y() + foot.y();
+                zero_stance_.Y() = hip.y() + upper_leg.y();
                 zero_stance_.Z() = hip.z() + upper_leg.z() + lower_leg.z() + foot.z();
                 
                 return zero_stance_;
@@ -148,7 +142,7 @@ namespace champ
             float center_to_nominal()
             {
                 float x = hip.x() + upper_leg.x();
-                float y = hip.y() + upper_leg.y() + lower_leg.y() + foot.y();
+                float y = hip.y() + upper_leg.y();
                 
                 return sqrtf(pow(x,2) + pow(y,2));
             }
