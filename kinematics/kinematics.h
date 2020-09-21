@@ -170,9 +170,6 @@ namespace champ
 
             static void transformToBase(geometry::Transformation &foot_position, const champ::QuadrupedLeg &leg)
             {
-                foot_position.RotateZ(leg.hip.yaw());
-                foot_position.RotateY(leg.hip.pitch());
-                foot_position.RotateX(leg.hip.roll());
                 foot_position.Translate(leg.hip.x(), leg.hip.y(), leg.hip.z());
             }
     };

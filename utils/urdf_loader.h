@@ -47,8 +47,6 @@ namespace champ
             std::string current_parent_name = end_link;
             urdf::LinkConstSharedPtr prev_link = model.getLink(current_parent_name);
 
-            double roll, pitch, yaw;           
-
             while(ref_link_ptr->name != current_parent_name)
             {   
                 urdf::LinkConstSharedPtr current_link = model.getLink(current_parent_name);
@@ -59,14 +57,7 @@ namespace champ
                 pose->position.x += current_pose.position.x;
                 pose->position.y += current_pose.position.y;
                 pose->position.z += current_pose.position.z;
-
-                double cur_roll, cur_pitch, cur_yaw;
-                current_pose.rotation.getRPY(cur_roll, cur_pitch, cur_yaw);
-                roll += cur_roll;
-                pitch += cur_pitch;
-                yaw += cur_yaw;
             }
-            pose->rotation.setFromRPY(roll, pitch, yaw);
         }
 
         void fillLeg(champ::QuadrupedLeg *leg, ros::NodeHandle *nh, urdf::Model &model, std::string links_map)
@@ -95,14 +86,13 @@ namespace champ
                 urdf::Pose pose;
                 getPose(&pose, ref_link, end_link, model);
 
-                double x, y, z, roll, pitch, yaw;
-                pose.rotation.getRPY(roll, pitch, yaw);
+                double x, y, z;
+
                 x = pose.position.x;
                 y = pose.position.y;
                 z = pose.position.z;
 
                 leg->joint_chain[i]->setTranslation(x, y, z);
-                leg->joint_chain[i]->setRotation(roll, pitch, yaw);
             }
         }
 
