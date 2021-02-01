@@ -80,9 +80,7 @@ namespace champ
                 foot_position = leg.zero_stance();
 
                 //move the foot position to desired height of the robot
-                foot_position.Translate(req_translation_x, 0.0f, 0.0f);
-                foot_position.Translate(0.0f, req_translation_y, 0.0f);
-                foot_position.Translate(0.0f, 0.0f, req_translation_z);
+                foot_position.Translate(req_translation_x, req_translation_y, req_translation_z);
 
                 //rotate the leg opposite the required orientation of the body
                 foot_position.RotateZ(-req_pose.orientation.yaw);
