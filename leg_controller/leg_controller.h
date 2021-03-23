@@ -48,9 +48,9 @@ namespace champ
             }
 
         public:
-            LegController(QuadrupedBase &quadruped_base):
+            LegController(QuadrupedBase &quadruped_base, PhaseGenerator::Time time = PhaseGenerator::now()):
                 base_(&quadruped_base),     
-                phase_generator(quadruped_base),
+                phase_generator(quadruped_base, time),
                 lf(base_->lf),
                 rf(base_->rf),
                 lh(base_->lh),
@@ -90,7 +90,7 @@ namespace champ
                 return (stance_duration / 2.0f) * target_velocity;
             }
 
-            void velocityCommand(geometry::Transformation (&foot_positions)[4], champ::Velocities &req_vel)
+            void velocityCommand(geometry::Transformation (&foot_positions)[4], champ::Velocities &req_vel, PhaseGenerator::Time time = PhaseGenerator::now())
             {
                 //limit all velocities to user input
                 req_vel.linear.x = capVelocities(req_vel.linear.x, -base_->gait_config.max_linear_velocity_x, base_->gait_config.max_linear_velocity_x);
@@ -121,7 +121,7 @@ namespace champ
                 }
 
                 //create a saw tooth signal gen so the trajectory planner knows whether it should swing or stride
-                phase_generator.run(velocity, sum_of_steps / 4.0f);
+                phase_generator.run(velocity, sum_of_steps / 4.0f, time);
 
                 for(unsigned int i = 0; i < 4; i++)
                 {

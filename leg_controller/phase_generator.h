@@ -35,16 +35,21 @@ namespace champ
 {
     class PhaseGenerator
     {
+        public:
+            typedef unsigned long int Time;
+            static inline Time now() { return time_us(); }
+
+        private:
             champ::QuadrupedBase *base_;
 
-            unsigned long int last_touchdown_;
+            Time last_touchdown_;
 
             bool has_swung_;
 
         public:
-            PhaseGenerator(champ::QuadrupedBase &base):
+            PhaseGenerator(champ::QuadrupedBase &base, Time time = now()):
                 base_(&base),
-                last_touchdown_(time_us()),
+                last_touchdown_(time),
                 has_swung_(false),
                 has_started(false),
                 stance_phase_signal{0.0f,0.0f,0.0f,0.0f},
@@ -52,7 +57,7 @@ namespace champ
             {
             }        
 
-            void run(float target_velocity, float step_length)
+            void run(float target_velocity, float step_length, Time time = now())
             {
                 unsigned long elapsed_time_ref = 0;
                 float swing_phase_period = 0.25f * SECONDS_TO_MICROS;
@@ -77,18 +82,18 @@ namespace champ
                 if(!has_started)
                 {
                     has_started = true;
-                    last_touchdown_ = time_us();
+                    last_touchdown_ = time;
                 }
 
-                if((time_us() - last_touchdown_) >= stride_period)
+                if((time - last_touchdown_) >= stride_period)
                 {
-                    last_touchdown_ = time_us();
+                    last_touchdown_ = time;
                 }
 
                 if(elapsed_time_ref >= stride_period)
                     elapsed_time_ref = stride_period;
                 else
-                    elapsed_time_ref = time_us() - last_touchdown_;
+                    elapsed_time_ref = time - last_touchdown_;
 
                 leg_clocks[0] = elapsed_time_ref - (0.0f * stride_period);
                 leg_clocks[1] = elapsed_time_ref - (0.5f * stride_period);
