@@ -52,7 +52,7 @@ namespace champ
                 prev_gait_phase_{1,1,1,1},
                 prev_theta_{0,0,0,0},
                 prev_time_(time),
-                beta_(0.05)
+                beta_(0.1)
             {
                 for(unsigned int i = 0; i < 4; i++)
                 {
@@ -62,10 +62,10 @@ namespace champ
             
             bool allFeetInContact()
             {
-                if(base_->legs[0]->gait_phase() &&
-                   base_->legs[1]->gait_phase() &&
-                   base_->legs[2]->gait_phase() &&
-                   base_->legs[3]->gait_phase())
+                if(base_->legs[0]->in_contact() &&
+                   base_->legs[1]->in_contact() &&
+                   base_->legs[2]->in_contact() &&
+                   base_->legs[3]->in_contact())
                 {
                     return true;
                 }
@@ -77,10 +77,10 @@ namespace champ
 
             bool noFootInContact()
             {
-                if(!base_->legs[0]->gait_phase() &&
-                   !base_->legs[1]->gait_phase() &&
-                   !base_->legs[2]->gait_phase() &&
-                   !base_->legs[3]->gait_phase())
+                if(!base_->legs[0]->in_contact() &&
+                   !base_->legs[1]->in_contact() &&
+                   !base_->legs[2]->in_contact() &&
+                   !base_->legs[3]->in_contact())
                 {
                     return true;
                 }
@@ -116,7 +116,7 @@ namespace champ
                 {
                     geometry::Transformation current_foot_position = base_->legs[i]->foot_from_base();
                 
-                    bool current_gait_phase = base_->legs[i]->gait_phase();
+                    bool current_gait_phase = base_->legs[i]->in_contact();
                     
                     float delta_x = (prev_foot_position_[i].X() - current_foot_position.X());
                     float delta_y = (prev_foot_position_[i].Y() - current_foot_position.Y());
