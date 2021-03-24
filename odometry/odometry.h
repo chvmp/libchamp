@@ -44,12 +44,15 @@ namespace champ
         float beta_;
 
         public:
-            Odometry(QuadrupedBase &quadruped_base):
+            typedef unsigned long int Time;
+            static inline Time now() { return time_us(); }
+
+            Odometry(QuadrupedBase &quadruped_base, Time time = now()):
                 base_(&quadruped_base),
                 prev_gait_phase_{1,1,1,1},
                 prev_theta_{0,0,0,0},
-                prev_time_(0),
-                beta_(0.1)
+                prev_time_(time),
+                beta_(0.05)
             {
                 for(unsigned int i = 0; i < 4; i++)
                 {
@@ -87,10 +90,8 @@ namespace champ
                 }
             }
 
-            void getVelocities(champ::Velocities &vel, bool close_loop)
+            void getVelocities(champ::Velocities &vel, Time now = now())
             {      
-                unsigned long int now = time_us();
-
                 //if all legs are on the ground, nothing to calculate
                 //or if no legs are on the ground, probably the robot is upside-down
                 if(allFeetInContact() || noFootInContact())
@@ -120,32 +121,20 @@ namespace champ
                     float delta_x = (prev_foot_position_[i].X() - current_foot_position.X());
                     float delta_y = (prev_foot_position_[i].Y() - current_foot_position.Y());
                     
-                    float current_theta = atan2f(current_foot_position.Y(), current_foot_position.X());
-                    float delta_theta = (prev_theta_[i] - current_theta);
+                    float current_theta = atan2f(current_foot_position.X(), current_foot_position.Y());
+                    float delta_theta = (current_theta - prev_theta_[i]);
 
-                    if(prev_gait_phase_[i])
+                    if(current_gait_phase)
                     {
                         total_contact += 1;
                         theta_sum += delta_theta;
+                        x_sum += delta_x / 2.0;
+                        y_sum += delta_y / 2.0;
                     }
                         
-                    x_sum += delta_x * base_->legs[i]->gait_phase();
-                    y_sum += delta_y * base_->legs[i]->gait_phase();
-
                     prev_foot_position_[i] = current_foot_position;
                     prev_gait_phase_[i] = current_gait_phase;
                     prev_theta_[i] = current_theta;
-                }
-
-                if(total_contact > 0)
-                {
-                    if(!close_loop)
-                    {
-                        x_sum /= total_contact;
-                        y_sum /= total_contact;
-                    }
-                    
-                    theta_sum /= total_contact;
                 }
 
                 double dt = (now - prev_time_) / 1000000.0;
