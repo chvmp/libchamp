@@ -37,7 +37,7 @@ namespace champ
     {
         QuadrupedBase *base_;
         geometry::Transformation prev_foot_position_[4];
-        bool prev_gait_phase_[4];
+        bool prev_foot_contacts_[4];
         float prev_theta_[4];
         unsigned long int prev_time_;
         champ::Velocities prev_vel_;
@@ -49,7 +49,7 @@ namespace champ
 
             Odometry(QuadrupedBase &quadruped_base, Time time = now()):
                 base_(&quadruped_base),
-                prev_gait_phase_{1,1,1,1},
+                prev_foot_contacts_{1,1,1,1},
                 prev_theta_{0,0,0,0},
                 prev_time_(time),
                 beta_(0.1)
@@ -116,7 +116,7 @@ namespace champ
                 {
                     geometry::Transformation current_foot_position = base_->legs[i]->foot_from_base();
                 
-                    bool current_gait_phase = base_->legs[i]->in_contact();
+                    bool foot_in_contact = base_->legs[i]->in_contact();
                     
                     float delta_x = (prev_foot_position_[i].X() - current_foot_position.X());
                     float delta_y = (prev_foot_position_[i].Y() - current_foot_position.Y());
@@ -124,7 +124,7 @@ namespace champ
                     float current_theta = atan2f(current_foot_position.X(), current_foot_position.Y());
                     float delta_theta = (current_theta - prev_theta_[i]);
 
-                    if(current_gait_phase)
+                    if(foot_in_contact)
                     {
                         total_contact += 1;
                         theta_sum += delta_theta;
@@ -133,7 +133,7 @@ namespace champ
                     }
                         
                     prev_foot_position_[i] = current_foot_position;
-                    prev_gait_phase_[i] = current_gait_phase;
+                    prev_foot_contacts_[i] = foot_in_contact;
                     prev_theta_[i] = current_theta;
                 }
 
