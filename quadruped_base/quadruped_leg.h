@@ -57,7 +57,7 @@ namespace champ
                 center_to_nominal_(0),
                 id_(0),
                 last_touchdown_(0),
-                in_contact_(0),
+                in_contact_(1),
                 knee_direction_(0),
                 is_pantograph_(false),
                 gait_phase_(1)
@@ -167,18 +167,15 @@ namespace champ
                 id_ = id;
             }
 
-            // void in_contact(bool in_contact)
-            // {
-            //     if(!in_contact_ && in_contact){
-            //         last_touchdown_ = micros();
-            //     }
-            //     in_contact_ = in_contact;
-            // }
+            void in_contact(bool in_contact)
+            {
+                in_contact_ = in_contact;
+            }
 
-            // bool in_contact()
-            // {
-            //     return in_contact_;
-            // }
+            bool in_contact()
+            {
+                return in_contact_;
+            }
 
             void gait_phase(bool phase)
             {
