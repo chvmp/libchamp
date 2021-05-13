@@ -162,15 +162,13 @@ namespace champ
                 foot_position.Translate(leg.hip.x(), leg.hip.y(), leg.hip.z());
             }
 
-            static void transformToHip(geometry::Transformation &foot_position, champ::QuadrupedLeg &leg)
+            static void transformToHip(geometry::Transformation &foot_position, const champ::QuadrupedLeg &leg)
             {
                 foot_position.Translate(-leg.hip.x(), -leg.hip.y(), -leg.hip.z());
-                foot_position.RotateX(-leg.hip.theta());
             }
 
-            static void transformToBase(geometry::Transformation &foot_position, champ::QuadrupedLeg &leg)
+            static void transformToBase(geometry::Transformation &foot_position, const champ::QuadrupedLeg &leg)
             {
-                foot_position.RotateX(leg.hip.theta());
                 foot_position.Translate(leg.hip.x(), leg.hip.y(), leg.hip.z());
             }
     };
