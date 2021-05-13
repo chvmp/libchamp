@@ -100,21 +100,6 @@ namespace champ
                 return foot_position;
             }
 
-            void transformToHip(geometry::Transformation &foot)
-            {
-                geometry::Point temp_point;
-
-                temp_point.X() = foot.X() - hip.x();
-                temp_point.Y() = foot.Y() - hip.y();
-                temp_point.Z() = foot.Z();
-                foot.p = temp_point;
-            }
-
-            void transformToBase(geometry::Transformation &foot)
-            {
-                foot.Translate(hip.x(), hip.y(), hip.z());
-            }
-
             void joints(float hip_joint, float upper_leg_joint, float lower_leg_joint)
             { 
                 hip.theta(hip_joint);
