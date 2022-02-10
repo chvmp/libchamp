@@ -47,7 +47,7 @@ namespace champ
             typedef unsigned long int Time;
             static inline Time now() { return time_us(); }
 
-            Odometry(QuadrupedBase &quadruped_base, Time time = now()):
+            Odometry(QuadrupedBase &quadruped_base, Time time = Odometry::now()):
                 base_(&quadruped_base),
                 prev_foot_contacts_{1,1,1,1},
                 prev_theta_{0,0,0,0},
@@ -90,7 +90,7 @@ namespace champ
                 }
             }
 
-            void getVelocities(champ::Velocities &vel, Time now = now())
+            void getVelocities(champ::Velocities &vel, Time now = Odometry::now())
             {      
                 //if all legs are on the ground, nothing to calculate
                 //or if no legs are on the ground, probably the robot is upside-down
