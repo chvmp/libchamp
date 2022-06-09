@@ -91,11 +91,11 @@ namespace champ
 
         }
 
-        void loadFromServer(champ::QuadrupedBase &base, const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh)
+        void loadFromFile(champ::QuadrupedBase &base, const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh, const std::string& urdf_filepath)
         {
             urdf::Model model;
             // TODO fix temp path
-            if (!model.initFile("/home/Alexander.Karavaev/champ_ws/src/champ/champ_description/urdf/champ.urdf")){
+            if (!model.initFile(urdf_filepath)){
                  RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to parse urdf file");
             } 
             
