@@ -115,7 +115,7 @@ namespace champ
                 for(unsigned int i = 0; i < 4; i++)
                 {
                     geometry::Transformation current_foot_position = base_->legs[i]->foot_from_base();
-                
+                    
                     bool foot_in_contact = base_->legs[i]->in_contact();
                     
                     float delta_x = (prev_foot_position_[i].X() - current_foot_position.X());
@@ -138,7 +138,9 @@ namespace champ
                 }
 
                 double dt = (now - prev_time_) / 1000000.0;
-                
+                // zero division check
+                if (dt == 0)
+                    dt = 0.02;
                 vel.linear.x =  ((1 - beta_) * ((x_sum * base_->gait_config.odom_scaler) / dt)) + (beta_ * prev_vel_.linear.x);
                 vel.linear.y =  ((1 - beta_) * ((y_sum * base_->gait_config.odom_scaler) / dt)) + (beta_ * prev_vel_.linear.y);
                 vel.angular.z = ((1- beta_ ) * (theta_sum / dt)) + (beta_ * prev_vel_.angular.z);

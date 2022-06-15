@@ -28,9 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef URDF_LOADER_H
 #define URDF_LOADER_H
 
-#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 #include <urdf/model.h>
-#include <utils/xmlrpc_helpers.h>
+// #include <utils/xmlrpc_helpers.h>
 
 #include <quadruped_base/quadruped_base.h>
 #include <quadruped_base/quadruped_leg.h>
@@ -60,114 +60,114 @@ namespace champ
             }
         }
 
-        void fillLeg(champ::QuadrupedLeg *leg, ros::NodeHandle *nh, urdf::Model &model, std::string links_map)
+        void fillLeg(champ::QuadrupedLeg *leg, const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh, urdf::Model &model, std::string links_map)
         {
-            xh::Array output;
-            xh::fetchParam(nh, links_map, output);
-            xh::Struct output_i;
+            rclcpp::Parameter links_param_("links_param", std::vector<std::string> ({}));
+            auto success = nh->get_parameter(links_map, links_param_);
+            if (!success){
+                throw std::runtime_error("No links config file provided");
+            }
 
-            for(int i = 3; i > -1; i--)
-            {
-                XmlRpc::XmlRpcValue name_list;
-                XmlRpc::XmlRpcValue pos_list;
+            std::vector<std::string> links_param = links_param_.as_string_array();
 
-                std::string ref_link;
-                std::string end_link;
-                if(i > 0)
-                {
-                    xh::getArrayItem(output, i-1, ref_link);
-                }
-                else
-                {
+            for (int i = 3; i > -1; i--){
+                std::string ref_link, end_link;
+                if (i>0){
+                    ref_link = links_param[i-1];
+                }else {
                     ref_link = model.getRoot()->name;
                 }
-                xh::getArrayItem(output, i, end_link);
 
+                end_link = links_param[i];
                 urdf::Pose pose;
                 getPose(&pose, ref_link, end_link, model);
-
-                double x, y, z;
-
+                double x,y,z;
                 x = pose.position.x;
                 y = pose.position.y;
                 z = pose.position.z;
-
-                leg->joint_chain[i]->setTranslation(x, y, z);
+                
+                leg->joint_chain[i]->setTranslation(x,y,z);
             }
+
         }
 
-        void loadFromServer(champ::QuadrupedBase &base, ros::NodeHandle *nh)
+        void loadFromFile(champ::QuadrupedBase &base, const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh, const std::string& urdf_filepath)
         {
             urdf::Model model;
-            if (!model.initParam("robot_description")){
-                ROS_ERROR("Failed to parse urdf file");
+            // TODO fix temp path
+            if (!model.initFile(urdf_filepath)){
+                 RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to parse urdf file");
             } 
             
-            ROS_INFO("Successfully parsed urdf file");
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Successfully parsed urdf file");
             std::vector<std::string> links_map;
 
-            links_map.push_back("links_map/left_front");
-            links_map.push_back("links_map/right_front");
-            links_map.push_back("links_map/left_hind");
-            links_map.push_back("links_map/right_hind");
-
+            links_map.push_back("links_map.left_front");
+            links_map.push_back("links_map.right_front");
+            links_map.push_back("links_map.left_hind");
+            links_map.push_back("links_map.right_hind");
+            
             for(int i = 0; i < 4; i++)
             {
                 fillLeg(base.legs[i], nh, model, links_map[i]);
             }
         }
 
-        std::vector<std::string> getJointNames(ros::NodeHandle *nh)
+        std::vector<std::string> getJointNames(const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh)
         {
             std::vector<std::string> joints_map;
             std::vector<std::string> joint_names;
 
-            joints_map.push_back("joints_map/left_front");
-            joints_map.push_back("joints_map/right_front");
-            joints_map.push_back("joints_map/left_hind");
-            joints_map.push_back("joints_map/right_hind");
+            joints_map.push_back("joints_map.left_front");
+            joints_map.push_back("joints_map.right_front");
+            joints_map.push_back("joints_map.left_hind");
+            joints_map.push_back("joints_map.right_hind");
 
            
             for(int i = 0; i < 4; i++)
             {
-                xh::Array output;
-                xh::fetchParam(nh, joints_map[i], output);
-                xh::Struct output_i;
-                for(int j = 0; j < 3; j++)
-                {
-                    std::string joint_name;
-                    xh::getArrayItem(output, j, joint_name);
-                    joint_names.push_back(joint_name);
+                rclcpp::Parameter joints_param_("joints_param", std::vector<std::string> ({}));
+                auto success = nh->get_parameter(joints_map[i], joints_param_);
+                if (!success){
+                    throw std::runtime_error("No joints config file provided");
+                }
+
+
+                std::vector<std::string> joints_param = joints_param_.as_string_array();
+                for (int j=0;j<3;j++){
+                    joint_names.push_back(joints_param[j]);
                 }
             }
 
             return joint_names;
         }
 
-        std::vector<std::string> getLinkNames(ros::NodeHandle *nh)
+        std::vector<std::string> getLinkNames(const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh)
         {
             std::vector<std::string> links_map;
-            std::vector<std::string> links_name;
+            std::vector<std::string> links_names;
 
-            links_map.push_back("links_map/left_front");
-            links_map.push_back("links_map/right_front");
-            links_map.push_back("links_map/left_hind");
-            links_map.push_back("links_map/right_hind");
+            links_map.push_back("links_map.left_front");
+            links_map.push_back("links_map.right_front");
+            links_map.push_back("links_map.left_hind");
+            links_map.push_back("links_map.right_hind");
 
             for(int i = 0; i < 4; i++)
             {
-                xh::Array output;
-                xh::fetchParam(nh, links_map[i], output);
-                xh::Struct output_i;
-                for(int j = 0; j < 4; j++)
-                {
-                    std::string link_name;
-                    xh::getArrayItem(output, j, link_name);
-                    links_name.push_back(link_name);
+                rclcpp::Parameter links_param_("links_param", std::vector<std::string> ({}));
+                auto success = nh->get_parameter(links_map[i], links_param_);
+                if (!success){
+                    throw std::runtime_error("No links config file provided");
+                }
+
+
+                std::vector<std::string> link_param = links_param_.as_string_array();
+                for (int j=0;j<4;j++){
+                    links_names.push_back(link_param[j]);
                 }
             }
 
-            return links_name;
+            return links_names;
         }
     }
 }
