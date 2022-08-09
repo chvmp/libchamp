@@ -113,6 +113,28 @@ namespace champ
             }
         }
 
+        void loadFromString(champ::QuadrupedBase &base, const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh, const std::string& urdf_string)
+        {
+            urdf::Model model;
+            // TODO fix temp path
+            if (!model.initString(urdf_string)){
+                 RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to parse urdf string");
+            } 
+            
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Successfully parsed urdf file");
+            std::vector<std::string> links_map;
+
+            links_map.push_back("links_map.left_front");
+            links_map.push_back("links_map.right_front");
+            links_map.push_back("links_map.left_hind");
+            links_map.push_back("links_map.right_hind");
+            
+            for(int i = 0; i < 4; i++)
+            {
+                fillLeg(base.legs[i], nh, model, links_map[i]);
+            }
+        }
+
         std::vector<std::string> getJointNames(const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr nh)
         {
             std::vector<std::string> joints_map;
