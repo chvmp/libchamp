@@ -90,7 +90,7 @@ namespace champ
                 }
             }
 
-            void getVelocities(champ::Velocities &vel, Time now = now())
+            void getVelocities(champ::Velocities &vel, Time now = champ::Odometry::now())
             {      
                 //if all legs are on the ground, nothing to calculate
                 //or if no legs are on the ground, probably the robot is upside-down
